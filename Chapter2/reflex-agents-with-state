@@ -1,0 +1,36 @@
+def make_reflex_vacuum_agent_with_state_program():
+    last_A = float('inf')  # Initialize last_A with infinity
+    last_B = float('inf')  # Initialize last_B with infinity
+
+    def program(percept):
+        nonlocal last_A, last_B  # Use `nonlocal` to modify outer variables
+        location, status = percept  # Destructure the percept into location and status
+
+        last_A += 1  # Increment last_A
+        last_B += 1  # Increment last_B
+
+        if status == 'dirty':
+            if location == 'A':
+                last_A = 0  # Reset last_A
+            else:
+                last_B = 0  # Reset last_B
+            return 'Suck'
+        elif location == 'A':
+            if last_B > 3:
+                return 'Right'
+            else:
+                return 'NoOp'
+        elif location == 'B':
+            if last_A > 3:
+                return 'Left'
+            else:
+                return 'NoOp'
+
+    return program
+
+# Example usage:
+agent_program = make_reflex_vacuum_agent_with_state_program()
+
+# Example percepts
+print(agent_program(('A', 'dirty')))  # Output: 'Suck'
+print(agent_program(('B', 'clean')))  # Output: 'NoOp' or 'Left', depending on last_A
