@@ -1,0 +1,32 @@
+class Agent:
+    def __init__(self, name, body, program):
+        self.name = name
+        self.body = body
+        self.program = program
+
+class AgentBody:
+    def __init__(self):
+        # Initialize any attributes for the agent's body if needed
+        pass
+
+def make_reflex_vacuum_agent_program():
+    def program(percept):
+        location, status = percept  # Unpack the percept into location and status
+        if status == 'dirty':
+            return 'Suck'
+        elif location == 'A':
+            return 'Right'
+        elif location == 'B':
+            return 'Left'
+    return program
+
+# Create an agent named "Joe"
+joe = Agent(
+    name='Joe',
+    body=AgentBody(),
+    program=make_reflex_vacuum_agent_program()
+)
+
+# Example usage:
+percept = ('A', 'dirty')  # A percept with location 'A' and status 'dirty'
+print(joe.program(percept))  # Output: 'Suck'
