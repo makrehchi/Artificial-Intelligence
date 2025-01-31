@@ -1,0 +1,81 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Create a directed graph
+G = nx.DiGraph()
+
+# Add nodes
+nodes = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+G.add_nodes_from(nodes)
+
+# Define edges with actual costs (g-cost)
+edges = {
+    ('A', 'B'): 4, ('A', 'C'): 2,
+    ('B', 'D'): 5, ('B', 'E'): 10,
+    ('C', 'E'): 3, ('C', 'F'): 8,
+    ('D', 'G'): 6, ('E', 'G'): 4, ('F', 'G'): 5
+}
+
+# Define heuristic values h(n) (estimated cost to G)
+heuristics = {
+    'A': 7, 'B': 6, 'C': 4, 'D': 3, 'E': 2, 'F': 4, 'G': 0
+}
+
+# Add edges to graph with weights
+for (u, v), cost in edges.items():
+    G.add_edge(u, v, weight=cost)
+
+# Draw the graph
+# Draw the graph with actual edge lengths proportional to costs and heuristic values on nodes
+plt.figure(figsize=(8, 6))
+nx.draw(G, scaled_pos, with_labels=True, node_color='lightblue', node_size=2000, font_size=12, font_weight='bold')
+
+# Draw actual edge costs in black
+nx.draw_networkx_edge_labels(G, scaled_pos, edge_labels={(u, v): f"{cost}" for (u, v), cost in edges.items()}, font_size=12, font_color='black')
+
+# Display heuristic values on nodes in red
+for node, (x, y) in scaled_pos.items():
+    plt.text(x, y + 0.02, f"h={heuristics[node]}", fontsize=10, fontweight='bold', ha='center', color='red')
+
+plt.title("Graph with Edge Costs and Heuristic Values")
+plt.show()
+
+# Re-import necessary libraries since execution state was reset
+import networkx as nx
+
+# Recreate the graph data
+edges = {
+    ('A', 'B'): 4, ('A', 'C'): 2,
+    ('B', 'D'): 5, ('B', 'E'): 10,
+    ('C', 'E'): 3, ('C', 'F'): 8,
+    ('D', 'G'): 6, ('E', 'G'): 4, ('F', 'G'): 5
+}
+
+# Define heuristic values h(n) (estimated cost to G)
+heuristics = {
+    'A': 7, 'B': 6, 'C': 4, 'D': 3, 'E': 2, 'F': 4, 'G': 0
+}
+
+# Verify the consistency condition for each edge: h(n) ≤ c(n, n') + h(n')
+consistent = True
+inconsistent_edges = []
+
+# Check consistency for each edge (u, v)
+for (u, v), cost in edges.items():
+    if heuristics[u] > cost + heuristics[v]:
+        consistent = False
+        inconsistent_edges.append((u, v))
+
+# Display results
+if consistent:
+    result = "The heuristic is consistent: For every edge (u, v), h(u) ≤ c(u, v) + h(v) holds."
+else:
+    result = "The heuristic is NOT consistent. The following edges violate the consistency condition:\n"
+    for edge in inconsistent_edges:
+        result += f"- Edge {edge}: h({edge[0]}) > c({edge[0]}, {edge[1]}) + h({edge[1]})\n"
+
+result
+
+
+
+
