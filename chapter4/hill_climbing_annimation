@@ -1,0 +1,69 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.animation as animation
+
+# Define an objective function with multiple local maxima
+def objective_function(x):
+    return np.sin(3 * x) + np.cos(2 * x) + 0.5 * x
+
+# Generate x values and compute function values
+x = np.linspace(-2, 3, 500)
+y = objective_function(x)
+
+# Hill Climbing Simulation with More Points
+np.random.seed(42)  # For reproducibility
+start_x = np.random.uniform(-2, 3)  # Random starting point
+current_x = start_x
+step_size = 0.05  # Smaller step size for smoother animation
+iterations = 20  # More steps for smoother transition
+hill_climb_x = [current_x]
+hill_climb_y = [objective_function(current_x)]
+
+# Store all steps for animation
+for _ in range(iterations):
+    next_x_options = [current_x + step_size, current_x - step_size]
+    next_x_options = [x for x in next_x_options if -2 <= x <= 3]  # Keep within bounds
+    next_y_options = [objective_function(x) for x in next_x_options]
+
+    # Choose the best move (steepest ascent)
+    best_idx = np.argmax(next_y_options)
+    next_x = next_x_options[best_idx]
+    next_y = next_y_options[best_idx]
+
+    # Stop if no improvement
+    if next_y <= hill_climb_y[-1]:
+        break
+
+    # Update current position
+    current_x = next_x
+    hill_climb_x.append(current_x)
+    hill_climb_y.append(next_y)
+
+# Create figure for animation
+fig, ax = plt.subplots(figsize=(8, 5))
+
+def update(frame):
+    ax.clear()
+    ax.plot(x, y, label="Objective Function", color="blue")
+    ax.plot(hill_climb_x[:frame+1], hill_climb_y[:frame+1], "ro-", label="Hill Climbing Path")
+    ax.scatter(hill_climb_x[0], hill_climb_y[0], color="orange", s=100, label="Start Point")
+    ax.scatter(hill_climb_x[frame], hill_climb_y[frame], color="green", s=100, label="Current Point")
+
+    ax.set_xlabel("Solution Space (x)")
+    ax.set_ylabel("Objective Function Value f(x)")
+    ax.set_title(f"Hill Climbing: Iteration {frame+1}")
+    ax.legend()
+    ax.grid(True)
+
+# Animate the hill climbing process
+ani = animation.FuncAnimation(fig, update, frames=len(hill_climb_x), interval=500, repeat=False)
+
+# Save the animation as a GIF using Pillow (since ffmpeg is unavailable)
+gif_path = "hill_climbing_animation.gif"
+ani.save(gif_path, writer="pillow", fps=2)
+
+# Display the final plot
+plt.show()
+
+# Provide the download link
+gif_path
