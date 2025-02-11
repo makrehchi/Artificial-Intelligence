@@ -1,0 +1,72 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# Define the objective function (same as Hill Climbing)
+def objective_function(x):
+    return np.sin(3 * x) + np.cos(2 * x) + 0.5 * x
+
+# Generate x values and compute function values
+x = np.linspace(-2, 3, 500)
+y = objective_function(x)
+
+# Simulated Annealing Parameters
+np.random.seed(42)
+start_x = np.random.uniform(-2, 3)  # Random starting point
+current_x = start_x
+T = 1.0  # Initial temperature
+T_min = 0.01  # Minimum temperature
+alpha = 0.9  # Cooling rate
+step_size = 0.1  # Step size
+iterations = 50  # Number of steps
+sa_x = [current_x]
+sa_y = [objective_function(current_x)]
+
+# Simulated Annealing Algorithm
+for _ in range(iterations):
+    # Generate a random next step
+    next_x = current_x + np.random.uniform(-step_size, step_size)
+    if next_x < -2 or next_x > 3:  # Keep within bounds
+        continue
+    next_y = objective_function(next_x)
+
+    # Accept the new solution with probability based on temperature
+    delta = next_y - sa_y[-1]
+    if delta > 0 or np.exp(delta / T) > np.random.rand():
+        current_x = next_x
+        sa_x.append(current_x)
+        sa_y.append(next_y)
+
+    # Reduce temperature
+    T *= alpha
+    if T < T_min:
+        break
+
+# Create figure for animation
+fig, ax = plt.subplots(figsize=(8, 5))
+
+def update(frame):
+    ax.clear()
+    ax.plot(x, y, label="Objective Function", color="blue")
+    ax.plot(sa_x[:frame+1], sa_y[:frame+1], "ro-", label="Simulated Annealing Path")
+    ax.scatter(sa_x[0], sa_y[0], color="orange", s=100, label="Start Point")
+    ax.scatter(sa_x[frame], sa_y[frame], color="green", s=100, label="Current Point")
+
+    ax.set_xlabel("Solution Space (x)")
+    ax.set_ylabel("Objective Function Value f(x)")
+    ax.set_title(f"Simulated Annealing: Iteration {frame+1}, Temperature: {T:.3f}")
+    ax.legend()
+    ax.grid(True)
+
+# Animate the simulated annealing process
+ani = animation.FuncAnimation(fig, update, frames=len(sa_x), interval=500, repeat=False)
+
+# Save the animation as a GIF using Pillow
+sa_gif_path = "simulated_annealing_animation.gif"
+ani.save(sa_gif_path, writer="pillow", fps=2)
+
+# Display the final plot
+plt.show()
+
+# Provide the download link
+sa_gif_path
