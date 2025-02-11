@@ -1,0 +1,85 @@
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# Define the objective function (same function as before)
+def objective_function(x):
+    return np.sin(3 * x) + np.cos(2 * x) + 0.5 * x
+
+# Genetic Algorithm Parameters
+population_size = 10
+mutation_rate = 0.1
+crossover_rate = 0.8
+generations = 30
+x_min, x_max = -2, 3  # Search space bounds
+
+# Initialize population (random real values within range)
+population = [random.uniform(x_min, x_max) for _ in range(population_size)]
+
+# Store progress for animation
+ga_generations = [population.copy()]
+
+# Genetic Algorithm Process
+for _ in range(generations):
+    # Evaluate fitness (objective function values)
+    fitness = [objective_function(ind) for ind in population]
+
+    # Selection: Tournament Selection
+    selected = []
+    for _ in range(population_size):
+        i, j = random.sample(range(population_size), 2)
+        selected.append(population[i] if fitness[i] > fitness[j] else population[j])
+
+    # Crossover: Single-point crossover
+    offspring = []
+    for i in range(0, population_size, 2):
+        if random.random() < crossover_rate:
+            alpha = random.random()  # Blend crossover
+            new1 = alpha * selected[i] + (1 - alpha) * selected[i + 1]
+            new2 = alpha * selected[i + 1] + (1 - alpha) * selected[i]
+            offspring.extend([new1, new2])
+        else:
+            offspring.extend([selected[i], selected[i + 1]])
+
+    # Mutation: Small random changes
+    for i in range(population_size):
+        if random.random() < mutation_rate:
+            offspring[i] += random.uniform(-0.1, 0.1)
+            offspring[i] = max(x_min, min(x_max, offspring[i]))  # Keep within bounds
+
+    # Update population
+    population = offspring.copy()
+    ga_generations.append(population.copy())
+
+# Generate x values for function plot
+x = np.linspace(x_min, x_max, 500)
+y = objective_function(x)
+
+# Create figure for animation
+fig, ax = plt.subplots(figsize=(8, 5))
+
+def update(frame):
+    ax.clear()
+    ax.plot(x, y, label="Objective Function", color="blue")
+    ax.scatter(ga_generations[frame], [objective_function(p) for p in ga_generations[frame]], 
+               color="red", s=100, label="Population")
+
+    ax.set_xlabel("Solution Space (x)")
+    ax.set_ylabel("Objective Function Value f(x)")
+    ax.set_title(f"Genetic Algorithm: Generation {frame+1}")
+    ax.legend()
+    ax.grid(True)
+
+# Animate the Genetic Algorithm process
+ani = animation.FuncAnimation(fig, update, frames=len(ga_generations), interval=500, repeat=False)
+
+# Save the animation as a GIF using Pillow
+ga_gif_path = "genetic_algorithm_animation.gif"
+ani.save(ga_gif_path, writer="pillow", fps=2)
+
+# Display the final plot
+plt.show()
+
+# Provide the download link
+ga_gif_path
